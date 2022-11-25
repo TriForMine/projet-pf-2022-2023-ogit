@@ -40,7 +40,7 @@ let store_commit _c = let file_content = Printf.sprintf "%s\n%s\n%s\n%s" (String
 let read_commit _h = let path = Sys.getcwd () ^ "/.ogit/logs/" ^ (Digest.to_hex _h) in
     In_channel.with_open_text path (fun file -> let content = In_channel.input_all file in
         let lines = String.split_on_char '\n' content in
-        let parents = List.map Digest.from_hex (String.split_on_char ';' (List.nth lines 0)) in
+        let parents = if List.nth lines 0 = "" then [] else List.map Digest.from_hex (String.split_on_char ';' (List.nth lines 0)) in
         let date = date_fm_to_float (List.nth lines 1) in
         let message = List.nth lines 2 in
         let content = Digest.from_hex (List.nth lines 3) in

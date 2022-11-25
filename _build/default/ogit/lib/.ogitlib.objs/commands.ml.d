@@ -1,1 +1,1 @@
-ogit/lib/commands.ml: Logs Sys
+ogit/lib/commands.ml: Digest Logs Objects Sys

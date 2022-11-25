@@ -100,6 +100,7 @@ let rec merge_work_directory_I _obj = let rec loop (has_conflict: bool) = functi
               begin
                 Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 (name ^ "..cl") (fun file -> Out_channel.output_string file content);
                 Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 (name ^ "..cr") (fun file -> Out_channel.output_string file (match obj with Text s -> s | _ -> failwith "Invalid object"));
+                Sys.remove name;
                 loop true rest
               end
             else

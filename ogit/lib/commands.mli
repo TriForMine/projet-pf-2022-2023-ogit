@@ -1,4 +1,4 @@
-(** objects.mli : signature pour les commandes ogit de haut niveau **)
+(** commands.mli : signature pour les commandes ogit de haut niveau **)
 
 (**  NOTE: on suppose que quand les fonctions - sauf init - sont appellées dans un repo valable, 
     i.e. contenant un répertoire .ogit **)

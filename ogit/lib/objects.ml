@@ -74,7 +74,6 @@ let rec restore_work_directory _obj = let rec loop = function
         Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 name (fun file -> Out_channel.output_string file (match obj with Text s -> s | _ -> failwith "Invalid object")); loop rest
   in loop ((match _obj with Directory dir -> dir | _ -> failwith "Invalid object"))
 
-
 (* If file exist in commit but doesn't exist in current work directory, add it
    If file exist in commit and in current file, with same content do nothing
    If conflict create 2 files "filename..cl" and "filename..cr" *)

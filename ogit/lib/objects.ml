@@ -43,14 +43,15 @@ let rec work_directory_to_obj basedir =
 let store_work_directory () = let basedir = Sys.getcwd () in store_object (work_directory_to_obj basedir)
 
 let rec read_directory_object _h = let obj = read_text_object _h in
-  let rec loop acc = function
-    | [] -> acc
-    | line :: rest -> let (name, is_dir, digest) = match String.split_on_char ';' line with
-      | [name; "d"; digest] -> (name, true, digest)
-      | [name; "t"; digest] -> (name, false, digest)
-      | _ -> failwith "Invalid object"
-      in loop ((name, is_dir, Digest.from_hex digest, if is_dir then read_directory_object (Digest.from_hex digest) else Text (read_text_object (Digest.from_hex digest))) :: acc) rest
-  in Directory (obj |> String.split_on_char '\n' |> loop [] |> List.rev)
+    if obj = "" then Directory [] else
+      let rec loop acc = function
+        | [] -> acc
+        | line :: rest -> let (name, is_dir, digest) = match String.split_on_char ';' line with
+          | [name; "d"; digest] -> (name, true, digest)
+          | [name; "t"; digest] -> (name, false, digest)
+          | _ -> failwith "Invalid object"
+          in loop ((name, is_dir, Digest.from_hex digest, if is_dir then read_directory_object (Digest.from_hex digest) else Text (read_text_object (Digest.from_hex digest))) :: acc) rest
+      in Directory (obj |> String.split_on_char '\n' |> loop [] |> List.rev)
 
 let rec clean_work_directory () = let dir = Sys.readdir (Sys.getcwd ()) in
   let rec loop = function
@@ -72,7 +73,9 @@ let rec restore_work_directory _obj = let rec loop = function
       end
       else
         Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 name (fun file -> Out_channel.output_string file (match obj with Text s -> s | _ -> failwith "Invalid object")); loop rest
-  in loop ((match _obj with Directory dir -> dir | _ -> failwith "Invalid object"))
+  in match _obj with
+    | Directory dir -> loop dir
+    | _ ->()
 
 (* If file exist in commit but doesn't exist in current work directory, add it
    If file exist in commit and in current file, with same content do nothing

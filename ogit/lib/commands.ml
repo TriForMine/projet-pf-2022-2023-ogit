@@ -44,7 +44,7 @@ let ogit_checkout _hash = if has_conflict () then raise (Failure "Conflit détec
 let get_logs () = let a = Sys.readdir (Sys.getcwd () ^ "/.ogit/logs") |>
         Array.map(fun x -> Digest.from_hex x) |>
         Array.map (fun x -> (x, x |> Logs.read_commit)) in
-        let _ = Array.sort (fun (_, c1) (_, c2) -> compare c2 c1) a in
+        let _ = Array.sort (fun (_, c1) (_, c2) -> compare c1 c2) a in
         a |> Array.map (fun x -> fst x) |>
         Array.to_list
 

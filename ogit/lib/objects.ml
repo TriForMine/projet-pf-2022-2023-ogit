@@ -1,5 +1,5 @@
 type t =
-| Text of string 
+| Text of string
 | Directory of (string * bool * Digest.t * t) list
 
 let obj_to_list _obj = match _obj with
@@ -12,8 +12,8 @@ let obj_to_list _obj = match _obj with
           rest
     in List.rev (loop [] dir)
 
-let hash _obj = 
-      Digest.string (String.concat "\n" (obj_to_list _obj))
+let hash _obj =
+      obj_to_list _obj |> String.concat "\n" |> Digest.string
 
 let is_known _h = Sys.file_exists (Sys.getcwd () ^ "/.ogit/objects/" ^ (Digest.to_hex _h))
 
@@ -21,7 +21,7 @@ let read_text_object _h = In_channel.with_open_text (Sys.getcwd () ^ "/.ogit/obj
 
 let store_object _obj = let list = obj_to_list _obj in
   let digest = hash _obj in
-    Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 (Sys.getcwd () ^ "/.ogit/objects/" ^ (Digest.to_hex digest)) (fun file -> Out_channel.output_string file (String.concat "\n" list)); digest
+    Out_channel.with_open_gen [Open_creat; Open_trunc; Open_text; Open_wronly] 0o777 (Sys.getcwd () ^ "/.ogit/objects/" ^ (Digest.to_hex digest)) (fun file -> list |> String.concat "\n" |> Out_channel.output_string file); digest
 
 let store_object_helper _obj dir = let tmp = Sys.getcwd () in
   Sys.chdir dir;
@@ -50,8 +50,8 @@ let rec read_directory_object _h = let obj = read_text_object _h in
       | [name; "t"; digest] -> (name, false, digest)
       | _ -> failwith "Invalid object"
       in loop ((name, is_dir, Digest.from_hex digest, if is_dir then read_directory_object (Digest.from_hex digest) else Text (read_text_object (Digest.from_hex digest))) :: acc) rest
-  in Directory (List.rev (loop [] (String.split_on_char '\n' obj)))
-  
+  in Directory (obj |> String.split_on_char '\n' |> loop [] |> List.rev)
+
 let rec clean_work_directory () = let dir = Sys.readdir (Sys.getcwd ()) in
   let rec loop = function
     | [] -> ()

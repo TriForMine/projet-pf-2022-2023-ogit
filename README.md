@@ -27,7 +27,7 @@ Template of the project: https://github.com/etiloz/projet-pf-2022-2023-ogit
 
 ## INSTALLATION
 ```bash
-cd ogit && dune build @install && dune install
+dune build @install && dune install
 ```
 
 ## USAGE
